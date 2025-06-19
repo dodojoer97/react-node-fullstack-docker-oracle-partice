@@ -7,7 +7,7 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 const API_KEY = process.env.API_KEY;
 
-app.get("/api/items", (req, res) => {
+app.get("/items", (req, res) => {
   res.json([
     { id: 1, name: "Apple" },
     { id: 2, name: "Banana" },
@@ -15,7 +15,7 @@ app.get("/api/items", (req, res) => {
   ]);
 });
 
-app.get("/api/key", (req, res) => {
+app.get("/key", (req, res) => {
   res.json({ apiKey: API_KEY });
 });
 
