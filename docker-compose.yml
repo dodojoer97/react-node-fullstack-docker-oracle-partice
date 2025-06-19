@@ -1,3 +1,5 @@
+version: '3'
+
 services:
   frontend-builder:
     build:
@@ -7,13 +9,35 @@ services:
   backend:
     build: ./backend
     ports:
-      - "3000:3000"
+      - "${BACKEND_PORT}:${BACKEND_PORT}"
+    environment:
+      DB_HOST: ${DB_HOST}
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+      DB_NAME: ${DB_NAME}
+    depends_on:
+      - mysql
+
+  mysql:
+    image: mysql:8
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
+      MYSQL_DATABASE: ${DB_NAME}
+    volumes:
+      - mysql-data:/var/lib/mysql
+      - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql
+    ports:
+      - "${DB_PORT}:3306"
 
   nginx:
     build:
       context: ./nginx
     ports:
-      - "80:80"
+      - "${NGINX_PORT}:80"
     depends_on:
       - backend
       - frontend-builder
+
+volumes:
+  mysql-data:

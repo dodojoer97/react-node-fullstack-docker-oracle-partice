@@ -1,25 +1,23 @@
 // backend/index.js
-require("dotenv").config(); // Load variables from .env
+import express from 'express';
+import dotenv from 'dotenv';
+import { pool } from './db.js';
 
-const express = require("express");
+dotenv.config();
+
 const app = express();
-
 const PORT = process.env.PORT || 3000;
-const API_KEY = process.env.API_KEY;
 
-app.get("/items", (req, res) => {
-  res.json([
-    { id: 1, name: "Apple" },
-    { id: 2, name: "Banana" },
-    { id: 3, name: "Orange" },
-  ]);
-});
-
-app.get("/key", (req, res) => {
-  res.json({ apiKey: API_KEY });
+app.get('/api/items', async (req, res) => {
+  try {
+    const [rows] = await pool.query('SELECT * FROM items');
+    res.json(rows);
+  } catch (err) {
+    console.error('❌ DB query failed:', err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
 });
 
 app.listen(PORT, () => {
-  console.log(`✅ Backend running at http://localhost:${PORT}`);
-  console.log(`🔑 API key: ${API_KEY}`);
+  console.log(`✅ Backend running on http://localhost:${PORT}`);
 });
