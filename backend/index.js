@@ -8,7 +8,7 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-app.get('/api/items', async (req, res) => {
+app.get('/items', async (req, res) => {
   try {
     const [rows] = await pool.query('SELECT * FROM items');
     res.json(rows);
