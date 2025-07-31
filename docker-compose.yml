@@ -1,38 +1,43 @@
 version: "3"
 
 services:
-    backend:
-        build: ./backend
-        ports:
-            - "${BACKEND_PORT}:${BACKEND_PORT}"
-        environment:
-            DB_HOST: ${DB_HOST}
-            DB_USER: ${DB_USER}
-            DB_PASSWORD: ${DB_PASSWORD}
-            DB_NAME: ${DB_NAME}
-        depends_on:
-            - mysql
+  backend:
+    build: ./backend
+    ports:
+      - "${BACKEND_PORT}:${BACKEND_PORT}"  # backend exposed only for internal or API use
+    environment:
+      DB_HOST: ${DB_HOST}
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+      DB_NAME: ${DB_NAME}
+    depends_on:
+      - mysql
 
-    mysql:
-        image: mysql:8
-        restart: always
-        environment:
-            MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
-            MYSQL_DATABASE: ${DB_NAME}
-        volumes:
-            - mysql-data:/var/lib/mysql
-            - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql
-        ports:
-            - "${DB_PORT}:3306"
+  mysql:
+    image: mysql:8
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
+      MYSQL_DATABASE: ${DB_NAME}
+    volumes:
+      - mysql-data:/var/lib/mysql
+      - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql
+    # Optional: expose only if you want to connect to MySQL from outside
+    # ports:
+    #   - "${DB_PORT}:3306"
 
-    nginx:
-        build:
-            context: .
-            dockerfile: nginx/Dockerfile
-        ports:
-            - "${NGINX_PORT}:80"
-        depends_on:
-            - backend
+  nginx:
+    build:
+      context: .
+      dockerfile: nginx/Dockerfile
+    ports:
+      - "${NGINX_PORT}:80"
+      - "443:443"  # expose HTTPS port
+    depends_on:
+      - backend
+    volumes:
+      - /etc/letsencrypt:/etc/letsencrypt:ro  # mount SSL certs into container (read-only)
+      - ./nginx:/etc/nginx/conf.d             # optional: custom NGINX configs if outside Dockerfile
 
 volumes:
-    mysql-data:
+  mysql-data:
