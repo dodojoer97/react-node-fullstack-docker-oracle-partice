@@ -37,7 +37,5 @@ services:
       - backend
     volumes:
       - /etc/letsencrypt:/etc/letsencrypt:ro  # mount SSL certs into container (read-only)
-      - ./nginx:/etc/nginx/conf.d             # optional: custom NGINX configs if outside Dockerfile
-
 volumes:
   mysql-data:
